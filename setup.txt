@@ -1,0 +1,7 @@
+mailDigger
+
+ 1- connetti alle api di gmail
+  1a - installa pip3 (se non è già installato)
+  2a - installa le api di google: https://developers.google.com/gmail/api/quickstart/python
+ 2- recupera tutte le mail con il parametro ricevuto (mittente, oggetto)
+ 3- analizza il testo delle email per ricercare i valori richiesti dall'utente (chiave-valore)
