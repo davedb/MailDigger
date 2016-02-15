@@ -80,9 +80,25 @@ def main():
                 #print(cMessage['payload']['body']['data'])
                 cMessageDataDecoded = base64.urlsafe_b64decode(cMessage['payload']['body']['data'])
                 soup = BeautifulSoup(cMessageDataDecoded, 'html.parser')
-                bodyContentArray = soup.body.contents
-                for content in bodyContentArray:
-                    print(type(content.string))
+               # soup.find_all(string='>ORA PRELIEVO: (.*?)<br')
+                valuableData = soup.body.find_all(string=re.compile(': (\S+) ?(.+)?'))
+                prog = re.compile(': (\S+) ?(.+)?')
+                for value in valuableData:
+                    print(value)
+                    try:
+                        print('     ' + prog.search(value).group(1) + ' | ' + prog.search(value).group(2))
+                    except TypeError:
+                        print('     ' + prog.search(value).group(1))
+
+                
+               
+                #print('>>> ', result.group(2))
+                #print(' ', soup.body.contents)
+
+               # for element in soup.body.contents:
+               #     print(element, element.find_all('ORA'))
+                return
+                #print('>>> ', soup.find_all(re.compile(">ORA PRELIEVO: (.*?)<br")))
                 #    if re.search('ORA PRELIEVO', content):
                 #        print('oraPrelievo >>> ',content)
                # oraPrelievo = re.search('>ORA PRELIEVO: (.*?)<br', soup.body.string)
