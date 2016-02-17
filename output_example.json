@@ -1,0 +1,18 @@
+[
+	{
+		pickUpDate: "8-2-2016",
+		pickUpTime: "9.02",
+		pickUpStationId: "148",
+		pickUpStation: "Piazza Carbonari",
+		dropDate: "8-2-2016",
+		dropTime: "9.29",
+		dropStationId: "122",
+		dropStation: "Ripamonti Bellezza",
+		bikeType: "tradizionale",
+		usageTime: "00:27",
+		price: "-",
+		penalty: "No",
+		co2Saved: "0,9722",
+		burnedCalories: "92,89"
+	},
+]

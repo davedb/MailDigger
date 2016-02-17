@@ -10,7 +10,7 @@ from oauth2client import tools
 import base64
 import re
 from bs4 import BeautifulSoup
-
+import json
 
 try:
     import argparse
@@ -71,39 +71,53 @@ def main():
     if not messages:
         print('No messages found.')
     else:
-        print('messages:')
+        #print('messages:')
+        dataToWriteKeys = (('pickUpDate', 'pickUpTime'),('pickUpStationId', 'pickUpStation'),('dropDate','dropTime'), ('dropStationId', 'dropStation'),'bikeType','usageTime','price','penalty','co2Saved','burnedCalories')
+        dataToWrite = []
         for message in messages:
             messageId = message['id']
             print(messageId)#, service.users().messages().get(userId='me', id=messageId).execute())
-            if messageId == '152c0033f0e6ac3a':
-                cMessage = service.users().messages().get(userId='me', id=messageId, format='full').execute()
-                #print(cMessage['payload']['body']['data'])
+            #if messageId == '152c0033f0e6ac3a':
+            cMessage = service.users().messages().get(userId='me', id=messageId, format='full').execute()
+            
+            try:
                 cMessageDataDecoded = base64.urlsafe_b64decode(cMessage['payload']['body']['data'])
-                soup = BeautifulSoup(cMessageDataDecoded, 'html.parser')
-               # soup.find_all(string='>ORA PRELIEVO: (.*?)<br')
-                valuableData = soup.body.find_all(string=re.compile(': (\S+) ?(.+)?'))
-                prog = re.compile(': (\S+) ?(.+)?')
-                for value in valuableData:
-                    print(value)
-                    try:
-                        print('     ' + prog.search(value).group(1) + ' | ' + prog.search(value).group(2))
-                    except TypeError:
-                        print('     ' + prog.search(value).group(1))
+            except KeyError:
+                continue
 
-                
-               
-                #print('>>> ', result.group(2))
-                #print(' ', soup.body.contents)
+            soup = BeautifulSoup(cMessageDataDecoded, 'html.parser')
+            
+            try:
+                valuableData = soup.body.find_all(string=re.compile(': (\S+) ?-? ?(.+)?'))
+            except AttributeError:
+                continue
 
-               # for element in soup.body.contents:
-               #     print(element, element.find_all('ORA'))
-                return
-                #print('>>> ', soup.find_all(re.compile(">ORA PRELIEVO: (.*?)<br")))
-                #    if re.search('ORA PRELIEVO', content):
-                #        print('oraPrelievo >>> ',content)
-               # oraPrelievo = re.search('>ORA PRELIEVO: (.*?)<br', soup.body.string)
-               # print('oraPrelievo >>> ',oraPrelievo.group(1))
-              #  print('cMessageDataDecoded >>> ',soup.body.contents)
+            print('handling..')
+            prog = re.compile(': (\S+) ?-? ?(.+)?')
+            i = 0
+            singleTrip = {}
+            for value in valuableData:
+                #print(value, i)
+                try:
+                    #print(type(dataToWriteKeys[i]))
+                    if(isinstance(dataToWriteKeys[i], tuple)):
+                        singleTrip[dataToWriteKeys[i][0]] = prog.search(value).group(1);
+                        singleTrip[dataToWriteKeys[i][1]] = prog.search(value).group(2);
+                    else:
+                        singleTrip[dataToWriteKeys[i]] = prog.search(value).group(1) + ' ' + prog.search(value).group(2);
+                    i+= 1
+                    #print('{0:<10} | {1:>10}'.format(prog.search(value).group(1),prog.search(value).group(2)))
+                except TypeError:
+                    singleTrip[dataToWriteKeys[i]] = prog.search(value).group(1)
+                    i+= 1
+                    #print('     ' + prog.search(value).group(1))
+            dataToWrite.append(singleTrip)
+            #return
+        print(dataToWrite)
+        f = open('outuput.json', 'w')
+        json_data = json.dumps(dataToWrite)
+        f.write(json_data)
+        f.close()
 
     
 
